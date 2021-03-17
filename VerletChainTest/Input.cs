@@ -31,13 +31,14 @@ namespace VerletChainTest
 		public static bool JumpDown => CurrentState.IsKeyDown(Keys.Space);
 
 		public static bool Back => KeyboardClick(Keys.Escape);
+		public static bool Shift => CurrentState.IsKeyDown(Keys.LeftShift);
 
 		public static Point MousePos => new Point(CurrentMouseState.Position.X, CurrentMouseState.Position.Y);
 		public static bool MouseClick => CurrentMouseState.LeftButton == ButtonState.Pressed && PastMouseState.LeftButton == ButtonState.Released;
 		public static bool RightMouseClick => CurrentMouseState.RightButton == ButtonState.Pressed && PastMouseState.RightButton == ButtonState.Released;
 		public static bool MouseHold => CurrentMouseState.LeftButton == ButtonState.Pressed;
-		public static bool ScrollDown => CurrentMouseState.ScrollWheelValue > PastMouseState.ScrollWheelValue;
-		public static bool ScrollUp => CurrentMouseState.ScrollWheelValue < PastMouseState.ScrollWheelValue;
+		public static bool ScrollDown => CurrentMouseState.ScrollWheelValue < PastMouseState.ScrollWheelValue;
+		public static bool ScrollUp => CurrentMouseState.ScrollWheelValue > PastMouseState.ScrollWheelValue;
 
 		public static bool KeyboardClick(Keys key) => CurrentState.IsKeyDown(key) && PastState.IsKeyUp(key);
 	}

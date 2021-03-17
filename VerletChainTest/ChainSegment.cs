@@ -32,8 +32,11 @@ namespace VerletChainTest
 			float fraction = ((Length - distance) / distance) / 2;
 
 			delta *= fraction;
-			Vertex1.Position -= delta;
-			Vertex2.Position += delta;
+
+			if (!Vertex1.Static)
+				Vertex1.Position -= delta;
+			if (!Vertex2.Static)
+				Vertex2.Position += delta;
 		}
 
 		public void Draw(SpriteBatch sB)

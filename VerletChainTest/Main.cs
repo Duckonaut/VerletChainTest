@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace VerletChainTest
 {
@@ -22,6 +23,7 @@ namespace VerletChainTest
 
 		Vector2 otherPos;
 		int currentVertex = 0;
+		int currentShiftVertex = 0;
 		public Main()
 		{
 			graphics = new GraphicsDeviceManager(this);
@@ -48,18 +50,6 @@ namespace VerletChainTest
 			for (int i = 0; i < 7; i++)
 			{
 				Segments.Add(new ChainSegment(Vertices[i], Vertices[i + 1], (float)(Rand.NextDouble() * 20f + 10f)));
-			}
-
-			for (int i = 0; i < 4; i++)
-			{
-				Vertices.Add(new ChainVertex(new Vector2(60, 120 + (20 * i)), (float)(Rand.NextDouble() * 8f + 4f), 0.9f, 0.5f, 1f));
-			}
-
-			Segments.Add(new ChainSegment(Vertices[3], Vertices[8], (float)(Rand.NextDouble() * 20f + 10f)));
-
-			for (int i = 0; i < 3; i++)
-			{
-				Segments.Add(new ChainSegment(Vertices[8 + i], Vertices[8 + i + 1], (float)(Rand.NextDouble() * 20f + 10f)));
 			}
 
 			base.Initialize();
@@ -108,29 +98,70 @@ namespace VerletChainTest
 				var newVertex = new ChainVertex(Input.MousePos.ToVector2(), (float)(Rand.NextDouble() * 8f + 4f), 0.9f, 0.5f, 1f);
 				Vertices.Add(newVertex);
 
-				Segments.Add(new ChainSegment(newVertex, Vertices[currentVertex], (newVertex.Position - Vertices[currentVertex].Position).Length() * 0.8f));
+				Segments.Add(new ChainSegment(newVertex, Vertices[currentVertex], (float)(Rand.NextDouble() * 20f + 10f)));
+
+				currentVertex = Vertices.Count - 1;
 			}
 
 			if (Input.KeyboardClick(Keys.R))
 			{
 				otherPos = new Vector2(-1, -1);
 
-			}	
+			}
+
+			if (Input.KeyboardClick(Keys.L))
+			{
+				if (Input.Shift)
+				{
+					var foundSegment = Segments.First(s => (s.Vertex1 == Vertices[currentVertex] && s.Vertex2 == Vertices[currentShiftVertex]) || (s.Vertex2 == Vertices[currentVertex] && s.Vertex1 == Vertices[currentShiftVertex]));
+
+					if (foundSegment != null)
+					{
+						Segments.Remove(foundSegment);
+					}
+				}
+				else
+				{
+					Segments.Add(new ChainSegment(Vertices[currentShiftVertex], Vertices[currentVertex], (float)(Rand.NextDouble() * 20f + 10f)));
+				}
+			}
 
 			if (Input.ScrollDown)
 			{
-				currentVertex++;
-				if (currentVertex >= Vertices.Count)
+				if (Input.Shift)
 				{
-					currentVertex = 0;
+					currentShiftVertex++;
+					if (currentShiftVertex >= Vertices.Count)
+					{
+						currentShiftVertex = 0;
+					}
+				}
+				else
+				{
+					currentVertex++;
+					if (currentVertex >= Vertices.Count)
+					{
+						currentVertex = 0;
+					}
 				}
 			}
 			if (Input.ScrollUp)
 			{
-				currentVertex--;
-				if (currentVertex < 0)
+				if (Input.Shift)
 				{
-					currentVertex = Vertices.Count - 1;
+					currentShiftVertex--;
+					if (currentShiftVertex < 0)
+					{
+						currentShiftVertex = Vertices.Count - 1;
+					}
+				}
+				else
+				{
+					currentVertex--;
+					if (currentVertex < 0)
+					{
+						currentVertex = Vertices.Count - 1;
+					}
 				}
 			}
 
@@ -166,6 +197,8 @@ namespace VerletChainTest
 			GraphicsDevice.Clear(Color.Black);
 
 			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp);
+			spriteBatch.Draw(Main.Pixel, new Vector2(0, 400), null, new Color(0, 255, 0), 0f, Vector2.Zero, new Vector2(Window.ClientBounds.Width, Window.ClientBounds.Height), SpriteEffects.None, 0);
+
 			for (int i = 0; i < Vertices.Count; i++)
 			{
 				var vertex = Vertices[i];
@@ -173,6 +206,10 @@ namespace VerletChainTest
 				if (i == currentVertex)
 				{
 					vertex.Draw(spriteBatch, Color.Red);
+				}
+				else if (i == currentShiftVertex)
+				{
+					vertex.Draw(spriteBatch, Color.Blue);
 				}
 				else
 				{
