@@ -86,101 +86,118 @@ namespace VerletChainTest
 			Input.CurrentState = Keyboard.GetState();
 			Input.CurrentMouseState = Mouse.GetState();
 
-			if (Input.MouseClick)
+			if (IsActive)
 			{
-				Vertices[currentVertex].StaticPos = Input.MousePos.ToVector2();
-				Vertices[currentVertex].Static = !Vertices[currentVertex].Static;
-
-			}
-
-			if (Input.RightMouseClick)
-			{
-				var newVertex = new ChainVertex(Input.MousePos.ToVector2(), (float)(Rand.NextDouble() * 8f + 4f), 0.9f, 0.5f, 1f);
-				Vertices.Add(newVertex);
-
-				Segments.Add(new ChainSegment(newVertex, Vertices[currentVertex], (float)(Rand.NextDouble() * 20f + 10f)));
-
-				currentVertex = Vertices.Count - 1;
-			}
-
-			if (Input.KeyboardClick(Keys.R))
-			{
-				otherPos = new Vector2(-1, -1);
-
-			}
-
-			if (Input.KeyboardClick(Keys.L))
-			{
-				if (Input.Shift)
+				if (Input.KeyboardHold(Keys.S))
 				{
-					var foundSegment = Segments.First(s => (s.Vertex1 == Vertices[currentVertex] && s.Vertex2 == Vertices[currentShiftVertex]) || (s.Vertex2 == Vertices[currentVertex] && s.Vertex1 == Vertices[currentShiftVertex]));
-
-					if (foundSegment != null)
+					if (Input.MouseClick)
 					{
-						Segments.Remove(foundSegment);
+						currentVertex = Vertices.IndexOf(Vertices.OrderBy(v => (v.Position - Input.MousePos.ToVector2()).LengthSquared()).First());
+					}
+
+					if (Input.RightMouseClick)
+					{
+						currentShiftVertex = Vertices.IndexOf(Vertices.OrderBy(v => (v.Position - Input.MousePos.ToVector2()).LengthSquared()).First());
 					}
 				}
 				else
 				{
-					Segments.Add(new ChainSegment(Vertices[currentShiftVertex], Vertices[currentVertex], (float)(Rand.NextDouble() * 20f + 10f)));
-				}
-			}
+					if (Input.MouseClick)
+					{
+						Vertices[currentVertex].StaticPos = Input.MousePos.ToVector2();
+						Vertices[currentVertex].Static = !Vertices[currentVertex].Static;
 
-			if (Input.ScrollDown)
-			{
-				if (Input.Shift)
-				{
-					currentShiftVertex++;
-					if (currentShiftVertex >= Vertices.Count)
-					{
-						currentShiftVertex = 0;
 					}
-				}
-				else
-				{
-					currentVertex++;
-					if (currentVertex >= Vertices.Count)
+
+					if (Input.RightMouseClick)
 					{
-						currentVertex = 0;
-					}
-				}
-			}
-			if (Input.ScrollUp)
-			{
-				if (Input.Shift)
-				{
-					currentShiftVertex--;
-					if (currentShiftVertex < 0)
-					{
-						currentShiftVertex = Vertices.Count - 1;
-					}
-				}
-				else
-				{
-					currentVertex--;
-					if (currentVertex < 0)
-					{
+						var newVertex = new ChainVertex(Input.MousePos.ToVector2(), (float)(Rand.NextDouble() * 8f + 4f), 0.9f, 0.5f, 1f);
+						Vertices.Add(newVertex);
+
+						Segments.Add(new ChainSegment(newVertex, Vertices[currentVertex], (float)(Rand.NextDouble() * 20f + 10f)));
+
 						currentVertex = Vertices.Count - 1;
 					}
 				}
+
+				if (Input.KeyboardClick(Keys.R))
+				{
+					otherPos = new Vector2(-1, -1);
+
+				}
+
+				if (Input.KeyboardClick(Keys.L))
+				{
+					if (Input.Shift)
+					{
+						var foundSegment = Segments.First(s => (s.Vertex1 == Vertices[currentVertex] && s.Vertex2 == Vertices[currentShiftVertex]) || (s.Vertex2 == Vertices[currentVertex] && s.Vertex1 == Vertices[currentShiftVertex]));
+
+						if (foundSegment != null)
+						{
+							Segments.Remove(foundSegment);
+						}
+					}
+					else
+					{
+						Segments.Add(new ChainSegment(Vertices[currentShiftVertex], Vertices[currentVertex], (float)(Rand.NextDouble() * 20f + 10f)));
+					}
+				}
+
+				if (Input.ScrollDown)
+				{
+					if (Input.Shift)
+					{
+						currentShiftVertex++;
+						if (currentShiftVertex >= Vertices.Count)
+						{
+							currentShiftVertex = 0;
+						}
+					}
+					else
+					{
+						currentVertex++;
+						if (currentVertex >= Vertices.Count)
+						{
+							currentVertex = 0;
+						}
+					}
+				}
+				if (Input.ScrollUp)
+				{
+					if (Input.Shift)
+					{
+						currentShiftVertex--;
+						if (currentShiftVertex < 0)
+						{
+							currentShiftVertex = Vertices.Count - 1;
+						}
+					}
+					else
+					{
+						currentVertex--;
+						if (currentVertex < 0)
+						{
+							currentVertex = Vertices.Count - 1;
+						}
+					}
+				}
+
+				//Vertices[0].Position = Input.MousePos.ToVector2();
+
+
+				foreach (var vertex in Vertices)
+				{
+					vertex.Update();
+					vertex.StandardConstrain();
+					vertex.SetStatic();
+				}
+
+				foreach (var segment in Segments)
+				{
+					segment.ConstrainLine();
+				}
+
 			}
-
-			//Vertices[0].Position = Input.MousePos.ToVector2();
-
-
-			foreach (var vertex in Vertices)
-			{
-				vertex.Update();
-				vertex.StandardConstrain();
-				vertex.SetStatic();
-			}
-
-			foreach (var segment in Segments)
-			{
-				segment.ConstrainLine();
-			}
-
-			
 
 			Input.PastState = Input.CurrentState;
 			Input.PastMouseState = Input.CurrentMouseState;
@@ -197,7 +214,7 @@ namespace VerletChainTest
 			GraphicsDevice.Clear(Color.Black);
 
 			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp);
-			spriteBatch.Draw(Main.Pixel, new Vector2(0, 400), null, new Color(0, 255, 0), 0f, Vector2.Zero, new Vector2(Window.ClientBounds.Width, Window.ClientBounds.Height), SpriteEffects.None, 0);
+			spriteBatch.Draw(Main.Pixel, new Vector2(0, 400), null, Color.White, 0f, Vector2.Zero, new Vector2(Window.ClientBounds.Width, 2f), SpriteEffects.None, 0);
 
 			for (int i = 0; i < Vertices.Count; i++)
 			{

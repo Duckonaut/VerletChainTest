@@ -62,7 +62,14 @@ namespace VerletChainTest
 		{
 			if (color == default(Color))
 			{
-				color = Color.White;
+				if (Static)
+				{
+					color = new Color(0, 255, 0);
+				}
+				else
+				{
+					color = Color.White;
+				}
 			}
 
 			Vector2 delta = (Position - LastPosition);

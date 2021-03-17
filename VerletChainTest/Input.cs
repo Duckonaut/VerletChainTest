@@ -41,5 +41,6 @@ namespace VerletChainTest
 		public static bool ScrollUp => CurrentMouseState.ScrollWheelValue > PastMouseState.ScrollWheelValue;
 
 		public static bool KeyboardClick(Keys key) => CurrentState.IsKeyDown(key) && PastState.IsKeyUp(key);
+		public static bool KeyboardHold(Keys key) => CurrentState.IsKeyDown(key);
 	}
 }
