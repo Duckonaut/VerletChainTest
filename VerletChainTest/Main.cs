@@ -216,6 +216,11 @@ namespace VerletChainTest
 			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp);
 			spriteBatch.Draw(Main.Pixel, new Vector2(0, 400), null, Color.White, 0f, Vector2.Zero, new Vector2(Window.ClientBounds.Width, 2f), SpriteEffects.None, 0);
 
+			foreach (var segment in Segments)
+			{
+				segment.Draw(spriteBatch);
+			}
+
 			for (int i = 0; i < Vertices.Count; i++)
 			{
 				var vertex = Vertices[i];
@@ -234,11 +239,7 @@ namespace VerletChainTest
 				}
 			}
 
-			foreach (var segment in Segments)
-			{
-				segment.Draw(spriteBatch);
-			}
-
+			
 			spriteBatch.Draw(Main.Pixel, Input.MousePos.ToVector2(), null, Color.White, 0f, new Vector2(0.5f, 0.5f), new Vector2(2f, 2f), SpriteEffects.None, 0);
 
 			spriteBatch.End();
