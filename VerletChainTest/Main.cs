@@ -12,24 +12,27 @@ namespace VerletChainTest
 	/// </summary>
 	public class Main : Game
 	{
-		const float GRAVITY = 0f;
+		const float GRAVITY = 1f;
+		public const int GROUND_LEVEL = 100;
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 		public static Texture2D Pixel { get; set; }
 
 		public List<ChainVertex> Vertices { get; set; }
 		public List<ChainSegment> Segments { get; set; }
-
+		public static Point WindowSize { get; set; }
 		public static Random Rand { get; set; }
 		public SpriteFont Font { get; set; }
 		public bool ShowStats { get; set; }
 		int currentVertex = 0;
 		int currentShiftVertex = 0;
-		
 		public Main()
 		{
 			graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
+			Window.AllowUserResizing = true;
+			
+			Window.ClientSizeChanged += (sender, e) => WindowSize = Window.ClientBounds.Size;
 		}
 
 		/// <summary>
@@ -40,6 +43,7 @@ namespace VerletChainTest
 		/// </summary>
 		protected override void Initialize()
 		{
+			WindowSize = Window.ClientBounds.Size;
 			Rand = new Random();
 			Vertices = new List<ChainVertex>();
 			Segments = new List<ChainSegment>();
@@ -246,7 +250,7 @@ namespace VerletChainTest
 			GraphicsDevice.Clear(Color.Black);
 
 			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp);
-			spriteBatch.Draw(Main.Pixel, new Vector2(0, 400), null, Color.White, 0f, Vector2.Zero, new Vector2(Window.ClientBounds.Width, 2f), SpriteEffects.None, 0);
+			spriteBatch.Draw(Main.Pixel, new Vector2(0, Main.WindowSize.Y - Main.GROUND_LEVEL), null, Color.White, 0f, Vector2.Zero, new Vector2(Window.ClientBounds.Width, 2f), SpriteEffects.None, 0);
 
 			foreach (var segment in Segments)
 			{

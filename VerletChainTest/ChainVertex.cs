@@ -49,13 +49,13 @@ namespace VerletChainTest
 
 		public void StandardConstrain()
 		{
-			if (Position.Y > 400)
+			if (Position.Y > Main.WindowSize.Y - Main.GROUND_LEVEL)
 			{
 				Vector2 delta = (Position - LastPosition) * Drag;
 
 				float speed = delta.Length();
-				Position = new Vector2(Position.X, 400);
-				LastPosition = new Vector2(Position.X, 400 + delta.Y * GroundBounce);
+				Position = new Vector2(Position.X, Main.WindowSize.Y - Main.GROUND_LEVEL);
+				LastPosition = new Vector2(LastPosition.X + (delta.Y / speed) * delta.X, Main.WindowSize.Y - Main.GROUND_LEVEL + delta.Y * GroundBounce);
 			}
 		}
 		public void Draw(SpriteBatch sB, Color color = default(Color))
